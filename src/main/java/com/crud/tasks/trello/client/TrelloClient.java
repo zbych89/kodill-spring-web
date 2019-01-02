@@ -32,16 +32,16 @@ public class TrelloClient {
         URI url = UriComponentsBuilder.fromHttpUrl(trelloApiEndpoint + "/members/" + trelloUsername + "/boards")
                 .queryParam("key", trelloAppKey)
                 .queryParam("token", trelloToken)
+                .queryParam("lists","all")
                 .queryParam("fields", "name,id").build().encode().toUri();
         return url;
     }
     public List<TrelloBoardDto> getTrelloBoards(){
         TrelloBoardDto[] boardsResponse = restTemplate.getForObject(this.buildUrl(), TrelloBoardDto[].class);
-        Optional<TrelloBoardDto[]> response = Optional.ofNullable(boardsResponse);
-        TrelloBoardDto[] newResponse = response.orElse(new TrelloBoardDto[]{});
-        return Arrays.asList(newResponse).stream()
-                .filter(b -> !(b.getId().equals(null)))
+        List<TrelloBoardDto> boardDtoList = Arrays.asList(Optional.ofNullable(boardsResponse).orElse(new TrelloBoardDto[0]));
+        return boardDtoList.stream()
+                .filter(b -> b.getName().length()>0)
                 .filter(b -> b.getName().contains("Kodilla"))
                 .collect(Collectors.toList());
+        }
     }
-}
